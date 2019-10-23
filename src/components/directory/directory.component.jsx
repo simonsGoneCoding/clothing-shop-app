@@ -5,6 +5,7 @@ import "./directory.styles.scss";
 class Directory extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
       sections: [
         {
