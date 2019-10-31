@@ -7,18 +7,41 @@ import HomePage from "./pages/homepage/homepage.component";
 import ShopPage from "./pages/shopPage/shop.component";
 import Header from "./components/header/header.component";
 import SignInAndSingUpPage from ".//pages/sign-in-and-sign-up/sign-in-and-sign-up.component";
+import { auth } from "./firebase/firebase.utils";
 
-function App() {
-  return (
-    <div>
-      <Header />
-      <Switch>
-        <Route exact path="/" component={HomePage} />
-        <Route path="/Shop" component={ShopPage} />
-        <Route path="/signin" component={SignInAndSingUpPage} />
-      </Switch>
-    </div>
-  );
+class App extends React.Component {
+  state = {
+    currentUser: null
+  };
+
+  unsubscribeFromAuth = null;
+
+  componentDidMount() {
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(user => {
+      // auth.onAuthStateChanged is authentication from firebase library -> if user does not log out firebase remembers the settings (open subscription, have to close it when it unmounts to prevent memory leaks <- unsubscribeFromAuth )
+      this.setState({
+        currentUser: user
+      });
+      console.log(user);
+    });
+  }
+
+  componentWillUnmount() {
+    this.unsubscribeFromAuth(); // closing subscribtion
+  }
+
+  render() {
+    return (
+      <div>
+        <Header />
+        <Switch>
+          <Route exact path="/" component={HomePage} />
+          <Route path="/Shop" component={ShopPage} />
+          <Route path="/signin" component={SignInAndSingUpPage} />
+        </Switch>
+      </div>
+    );
+  }
 }
 
 export default App;
