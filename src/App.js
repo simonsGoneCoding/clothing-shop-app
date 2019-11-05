@@ -17,10 +17,24 @@ class App extends React.Component {
   unsubscribeFromAuth = null;
 
   componentDidMount() {
-    this.unsubscribeFromAuth = auth.onAuthStateChanged(async user => {
+    this.unsubscribeFromAuth = auth.onAuthStateChanged(async userAuth => {
       // auth.onAuthStateChanged is authentication from firebase library -> if user does not log out firebase remembers the settings (open subscription, have to close it when it unmounts to prevent memory leaks <- unsubscribeFromAuth )
-      createUserProfileDocument(user);
-      console.log(this.state.currentUser);
+      if (userAuth) {
+        const userRef = await createUserProfileDocument(userAuth);
+
+        userRef.onSnapshot(snapShot => {
+          this.setState({
+            currentUser: {
+              id: snapShot.id,
+              ...snapShot.data()
+            }
+          });
+        });
+      } else {
+        this.setState({
+          currentUser: userAuth
+        });
+      }
     });
   }
 
